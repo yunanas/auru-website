@@ -1,0 +1,160 @@
+﻿<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>키링 주문제작</title>
+    <script src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background: #fff0f5;
+            padding: 30px;
+        }
+
+        form {
+            background: #ffffff;
+            padding: 20px;
+            border-radius: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            max-width: 500px;
+            margin: auto;
+        }
+
+        label {
+            display: block;
+            margin-top: 15px;
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 8px;
+            border-radius: 8px;
+            border: 1px solid #ccc;
+            margin-top: 5px;
+        }
+
+        button {
+            margin-top: 20px;
+            background-color: #ff99cc;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-size: 1rem;
+            border-radius: 15px;
+            cursor: pointer;
+        }
+
+            button:hover {
+                background-color: #ff66aa;
+            }
+    </style>
+</head>
+<body>
+
+    <form id="orderForm">
+        <h2>🎀 키링 주문 제작 🎀</h2>
+
+        <label>고객명</label>
+        <input type="text" name="name" required>
+
+        <label>전화번호</label>
+        <input type="tel" name="phone" required>
+
+        <label>이메일</label>
+        <input type="email" name="email" required>
+
+        <label>배송지 주소</label>
+        <textarea name="address" rows="2" required placeholder="도로명, 건물명 등 상세하게 적어주세요"></textarea>
+
+        <label>원하는 크기</label>
+        <select name="size" required>
+            <option value="">선택하세요</option>
+            <option value="소형">소형</option>
+            <option value="중형">중형</option>
+            <option value="대형">대형</option>
+        </select>
+
+        <label>원하는 색감</label>
+        <input type="text" name="color" placeholder="예: 하늘 + 아이보리">
+
+        <label>요청사항</label>
+        <textarea name="request" rows="3"></textarea>
+
+        <label>사진 첨부 (선택사항)</label>
+        <input type="file" name="photo" id="photo" accept="image/*">
+
+        <button type="submit">💌 주문 신청하기</button><br />
+        <a href="home.html" style="color: inherit; text-decoration: none;">← 메인 페이지로 돌아가기</a>
+    </form>
+
+    <script>
+        emailjs.init("JjhZ7p9ULd-WuIs7Q"); // 여기에 본인의 Public Key 넣기
+
+        document.getElementById('orderForm').addEventListener('submit', function (e) {
+            e.preventDefault();
+
+            const form = this;
+            const name = form.name.value;
+            const phone = form.phone.value;
+            const email = form.email.value;
+            const address = form.address.value;
+            const size = form.size.value;
+            const color = form.color.value;
+            const request = form.request.value;
+            const fileInput = document.getElementById('photo');
+            const file = fileInput.files[0];
+
+            const summary = `📝 주문 요약
+--------------------------
+고객명: ${name}
+전화번호: ${phone}
+이메일: ${email}
+배송지 주소: ${address}
+키링 크기: ${size}
+원하는 색감: ${color}
+요청사항: ${request}
+--------------------------`;
+
+            if (confirm(summary + "\n\n확인을 누르면 주문이 접수되고 이메일로 발송됩니다.")) {
+
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function () {
+                        const base64Image = reader.result;
+
+                        sendEmail(name, phone, email, address, size, color, request, base64Image);
+                    };
+                    reader.readAsDataURL(file);
+                } else {
+                    sendEmail(name, phone, email, address, size, color, request, "이미지 없음");
+                }
+            }
+        });
+
+        function sendEmail(name, phone, email, address, size, color, request, imageData) {
+            emailjs.send("service_hu5yqxj", "template_vokrx1a", {
+                name: name,
+                phone: phone,
+                email: email,
+                address: address,
+                size: size,
+                color: color,
+                request: request,
+                image_data: imageData
+            }).then(function (response) {
+                alert("주문이 이메일로 전송되었습니다. 감사합니다! 💕");
+                document.getElementById('orderForm').reset();
+            }, function (error) {
+                alert("이메일 전송 실패 😢 다시 시도해주세요.");
+                console.error("이메일 오류:", error);
+            });
+        }
+ 
+    </script>
+
+</body>
+</html>
+
+
+
+
